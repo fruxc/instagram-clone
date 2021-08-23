@@ -1,0 +1,8 @@
+{
+  "compile-hero.disable-compile-files-on-did-save-code": false,
+  "cSpell.enableFiletypes": ["jsx-tags"],
+  "emmet.triggerExpansionOnTab": true,
+  "emmet.includeLanguages": {
+    "javascript": "javascriptreact"
+  }
+}
