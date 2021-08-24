@@ -1,8 +1,10 @@
 import "./App.css";
 import React, { useState, useEffect } from "react";
-import Post from "./component/posts/Post";
+import Post from "./component/posts/post";
+import ImageUpload from "./component/imageUpload/imageUpload";
 import { db, auth } from "./firebase";
 import { Modal, Button, Input, makeStyles } from "@material-ui/core";
+import firebase from "firebase";
 
 const getModalStyle = () => {
   const top = 50;
@@ -38,26 +40,40 @@ const App = () => {
 
   const signUp = (event) => {
     event.preventDefault();
-    auth
-      .createUserWithEmailAndPassword(email, password)
-      .then((res) => {
-        res.user.updateProfile({
-          displayName: username,
-        });
-        alert("User has been registered successfully");
-        setOpen(false);
-      })
-      .catch((error) => alert(error.message));
+    if (username && password && email) {
+      auth
+        .createUserWithEmailAndPassword(email, password)
+        .then((res) => {
+          db.collection("users").add({
+            username: username,
+            password: password,
+            email: email,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          });
+          res.user.updateProfile({
+            displayName: username,
+          });
+          alert("User has been registered successfully");
+          setOpen(false);
+        })
+        .catch((error) => alert(error.message));
+    } else {
+      alert("Each field is mandatory!");
+    }
   };
 
   const login = (event) => {
     event.preventDefault();
-    auth
-      .signInWithEmailAndPassword(email, password)
-      .then(() => {
-        setOpenLogin(false);
-      })
-      .catch((error) => alert(error.message));
+    if (username && password) {
+      auth
+        .signInWithEmailAndPassword(email, password)
+        .then(() => {
+          setOpenLogin(false);
+        })
+        .catch((error) => alert(error.message));
+    } else {
+      alert("Each field is mandatory!");
+    }
   };
 
   useEffect(() => {
@@ -75,9 +91,13 @@ const App = () => {
   }, [user]);
 
   useEffect(() => {
-    db.collection("posts").onSnapshot((postsData) => {
-      setPosts(postsData.docs.map((doc) => ({ id: doc.id, post: doc.data() })));
-    });
+    db.collection("posts")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((postsData) => {
+        setPosts(
+          postsData.docs.map((doc) => ({ id: doc.id, post: doc.data() }))
+        );
+      });
   }, [posts]);
   return (
     <div className="app">
@@ -143,14 +163,6 @@ const App = () => {
           </form>
         </div>
       </Modal>
-      {user ? (
-        <Button onClick={() => auth.signOut()}>Logout</Button>
-      ) : (
-        <div className="app__loginContainer">
-          <Button onClick={() => setOpenLogin(true)}>Login</Button>
-          <Button onClick={() => setOpen(true)}>SignUp</Button>
-        </div>
-      )}
       {/* Header */}
       <div className="app__header">
         <img
@@ -158,18 +170,39 @@ const App = () => {
           alt=""
           className="app__headerImage"
         />
+        {user ? (
+          <Button onClick={() => auth.signOut()}>Logout</Button>
+        ) : (
+          <div className="app__loginContainer">
+            <Button onClick={() => setOpenLogin(true)}>Login</Button>
+            <Button onClick={() => setOpen(true)}>SignUp</Button>
+          </div>
+        )}
       </div>
       {/* Header */}
       {/* Posts */}
-
-      {posts.map(({ id, post }) => (
-        <Post
-          key={id}
-          username={post.username}
-          caption={post.caption}
-          imageUrl={post.imageUrl}
-        />
-      ))}
+      <div className="app__posts">
+        {posts.map(({ id, post }) => (
+          <Post
+            key={id}
+            postId={id}
+            user={user}
+            username={post.username}
+            caption={post.caption}
+            imageUrl={post.imageUrl}
+          />
+        ))}
+      </div>
+      {user ? (
+        <ImageUpload username={user.displayName} />
+      ) : (
+        <center>
+          <h3>Sorry! you need to login first to upload any post</h3>
+        </center>
+      )}
+      {/* Caption input */}
+      {/* File picker */}
+      {/* Post button */}
       {/* Posts */}
     </div>
   );
