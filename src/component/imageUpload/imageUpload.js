@@ -43,6 +43,7 @@ function ImageUpload({ username }) {
             setProgress(0);
             setCaption("");
             setImage(null);
+            console.log("post created successfully");
           });
       }
     );
