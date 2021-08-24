@@ -57,6 +57,9 @@ const App = () => {
           setOpen(false);
         })
         .catch((error) => alert(error.message));
+      setUsername("");
+      setEmail("");
+      setPassword("");
     } else {
       alert("Each field is mandatory!");
     }
@@ -71,6 +74,8 @@ const App = () => {
           setOpenLogin(false);
         })
         .catch((error) => alert(error.message));
+      setEmail("");
+      setPassword("");
     } else {
       alert("Each field is mandatory!");
     }
