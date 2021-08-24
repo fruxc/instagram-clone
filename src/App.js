@@ -64,7 +64,7 @@ const App = () => {
 
   const login = (event) => {
     event.preventDefault();
-    if (username && password) {
+    if (email && password) {
       auth
         .signInWithEmailAndPassword(email, password)
         .then(() => {
