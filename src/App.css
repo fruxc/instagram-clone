@@ -12,3 +12,10 @@
   border-bottom: 1px solid lightgrey;
   background-color: white;
 }
+
+.app__signup,
+.app__login {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
